@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geolocation</title>
+  
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f0f0f0; /* Light gray background */
+      color: #333; /* Dark gray text color */
+      font-family: Arial, sans-serif; /* Change font family */
+      font-size: 16px;
+      padding: 20px; /* Base font size */
+    }
+    .header {
+      background-color: #007bff; /* Blue header background */
+      color: #fff; /* White text color */
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+    }
+    .btn-custom {
+      background-color: #8f99a5; /* Blue button color */
+      border-color: #1a1b1b; /* Blue border color */
+      color: #fff; /* White text color */
+      padding: 10px 20px; /* Padding for better button size */
+      font-size: 16px; /* Increase button font size */
+      transition: background-color 0.3s ease; /* Smooth hover transition */
+    }
+    .btn-custom:hover {
+      background-color: #6c757d; /* Darker blue on hover */
+    }
+    #locationInfo {
+      margin-top: 20px;
+      font-size: 16px; /* Increase font size */
+      transition: opacity 0.5s ease; /* Fade-in effect */
+      opacity: 0; /* Initially hidden */
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    .table td {
+      border: 1px solid #ccc; /* Light gray border */
+      padding: 10px; /* Add padding for cell content */
+    }
+    .table h1 {
+      color: #333; /* Dark gray heading color */
+      text-align: center; /* Center align heading */
+      margin-bottom: 10px;
+    }
+    .table p {
+      color: #666; /* Gray text color */
+      margin: 0;
+    }
+    iframe {
+      margin-bottom: 20px;
+      width: 100%; /* Full width */
+      height: calc(500px * 9 / 16); /* 5:20 aspect ratio */
+      border: 1px solid #ccc; /* Light gray border */
+    }
+    @media (max-width: 768px) {
+      iframe {
+        width: 100%; /* Full width for small screens */
+        height: auto; /* Auto height */
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h3 style="text-align: center;">Kongu Engineering College</h3>
+      <h4 style="text-align: center;">Information Technology - Cloud Computing Laboratory</h4>
+    </div>  
+    <table class="table">
+      <tr>
+        <td>
+          <p style="font-weight: bold;font-size: 16px;">EX-9</p>
+        </td>
+        <td >
+          <p style="font-weight: bold;font-size: 16px;">This webpage demonstrates how to use geolocation in JavaScript. Click the button above to get your current location.</p>
+        </td>
+      </tr>
+    </table>
+    <div class="row justify-content-center">
+      <div class="col-md-2">
+        <button class="btn btn-custom btn-block" onclick="getLocation()">Get My Location</button>
+        <div id="locationInfo" class="text-center"></div>
+      </div>
+    </div>
+  </div>
+  <div class="container mt-4">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <iframe  src="https://thingspeak.com/channels/2531431/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&type=line&update=15"></iframe>
+      </div>
+      <div class="col-md-6 mt-4 mt-md-0">
+        <iframe src="https://thingspeak.com/channels/2531431/charts/2?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&type=line&update=15"></iframe>
+      </div>
+    </div><br/>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    let latitude, longitude;
+
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          latitude = position.coords.latitude;
+          longitude = position.coords.longitude;
+          console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
+
+          sendRandomDataToThingSpeak(latitude, longitude);
+
+          document.getElementById("locationInfo").innerHTML = `<b>Latitude: ${latitude}<br>Longitude: ${longitude}</b>`;
+          document.getElementById("locationInfo").style.opacity = "1"; // Fade in location info
+        });
+      } else {
+        console.log("Geolocation is not supported by this browser.");
+      }
+    }
+
+    function sendRandomDataToThingSpeak(latitude, longitude) {
+      const data = Math.floor(Math.random() * 100); 
+      const writeAPIKey = 'WVJDUVGVEK5WPRHS';
+      const url = 'https://api.thingspeak.com/update?api_key=' + writeAPIKey + '&field1=' + latitude + '&field2=' + longitude;
+  
+      fetch(url)
+        .then(response => {
+          if (response.ok) {
+            console.log("Data sent to ThingSpeak successfully.");
+          } else {
+            console.error("Failed to send data to ThingSpeak.");
+          }
+        })
+        .catch(error => {
+          console.error("Error occurred while sending data to ThingSpeak:", error);
+        });
+    }
+  </script>
+</body>
+</html>
